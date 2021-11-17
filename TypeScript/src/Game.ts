@@ -1,8 +1,8 @@
 export class Game {
-  private _lastSymbol: string = " ";
+  private _lastSymbol: Symbol | " " = " ";
   private _board: Board = new Board();
 
-  public Play(symbol: string, x: number, y: number): void {
+  public Play(symbol: Symbol, x: number, y: number): void {
     //if first move
     if (this._lastSymbol == " ") {
       //if player is X
@@ -74,12 +74,6 @@ export class Game {
   }
 }
 
-interface Tile {
-  X: number;
-  Y: number;
-  Symbol: string;
-}
-
 class Board {
   private _plays: Tile[] = [];
 
@@ -96,9 +90,17 @@ class Board {
     return this._plays.find((t: Tile) => t.X == x && t.Y == y)!;
   }
 
-  public AddTileAt(symbol: string, x: number, y: number): void {
+  public AddTileAt(symbol: Symbol, x: number, y: number): void {
     const tile: Tile = { X: x, Y: y, Symbol: symbol };
 
     this._plays.find((t: Tile) => t.X == x && t.Y == y)!.Symbol = symbol;
   }
 }
+
+interface Tile {
+  X: number;
+  Y: number;
+  Symbol: Symbol | " ";
+}
+
+type Symbol = "O" | "X";
