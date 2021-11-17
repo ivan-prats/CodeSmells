@@ -11,15 +11,11 @@ export class Game {
   }
 
   private ensureMoveOrderIsCorrect(symbol: Symbol) {
-    //if first move
     if (this._board.lastTilePlayed == null) {
-      //if player is X
       if (symbol == "O") {
         throw new Error("Invalid first player");
       }
-    }
-    //if not first move but player repeated
-    else if (this._board.lastTilePlayed.hasSameSymbol(symbol)) {
+    } else if (this._board.lastTilePlayed.hasSameSymbol(symbol)) {
       throw new Error("Invalid next player");
     }
   }
@@ -28,7 +24,10 @@ export class Game {
 class Board {
   private _plays: Tile[] = [];
   private TileAt(x: number, y: number): Tile {
-    return this._plays.find((t: Tile) => t.X == x && t.Y == y)!;
+    const tile = this._plays.find((t: Tile) => t.X == x && t.Y == y);
+    if (!tile)
+      throw new Error(`We could not find a Tile in position: (${x}, ${y})`);
+    return tile;
   }
   constructor() {
     for (let i = 0; i < 3; i++) {
@@ -45,14 +44,8 @@ class Board {
     Tile.create(symbol, x, y);
 
     const lastTilePlayed = this.TileAt(x, y);
-    if (!this.TileAt(x, y).hasSameSymbol(" ")) {
-      throw new Error("Invalid position");
-    }
-
-    if (lastTilePlayed) {
-      lastTilePlayed.Symbol = symbol;
-      this.lastTilePlayed = lastTilePlayed;
-    }
+    lastTilePlayed.play(symbol);
+    this.lastTilePlayed = lastTilePlayed;
   }
 
   public get playerWithThreeInARow(): Symbol | " " {
@@ -113,7 +106,7 @@ interface TileI {
 
 class Tile implements TileI {
   private constructor(
-    public Symbol: Symbol | " ",
+    private _Symbol: Symbol | " ",
     public X: number,
     public Y: number
   ) {
@@ -125,10 +118,22 @@ class Tile implements TileI {
     return new Tile(symbol, x, y);
   }
 
+  public get Symbol(): Symbol | " " {
+    return this._Symbol;
+  }
+
   public hasSameSymbol(symbolOrTile: Symbol | " " | Tile) {
     if (symbolOrTile instanceof Tile)
       return this.Symbol === symbolOrTile.Symbol;
     else return this.Symbol === symbolOrTile;
+  }
+
+  public play(symbol: Symbol) {
+    if (this.Symbol !== " ")
+      throw new Error(
+        `Tile (${this.X}, ${this.Y}) has already been played by ${this.Symbol}`
+      );
+    this._Symbol = symbol;
   }
 }
 
